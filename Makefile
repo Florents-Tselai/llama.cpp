@@ -899,3 +899,28 @@ tests/test-autorelease: tests/test-autorelease.cpp ggml.o llama.o tests/get-mode
 tests/test-chat-template: tests/test-chat-template.cpp ggml.o llama.o $(COMMON_DEPS) $(OBJS)
 	$(CXX) $(CXXFLAGS) -c $< -o $(call GET_OBJ_FILE, $<)
 	$(CXX) $(CXXFLAGS) $(filter-out %.h $<,$^) $(call GET_OBJ_FILE, $<) -o $@ $(LDFLAGS)
+
+PREFIX?=/usr/local
+INSTALL_BIN=$(PREFIX)/bin
+INSTALL_LIB=$(PREFIX)/lib
+INSTALL_INCLUDE=$(PREFIX)/include
+INSTALL=install
+TARGET_LIB=libllama.so
+TARGET_EXEC=llamacpp
+INSTALL_INCLUDE=$(PREFIX)/include
+TARGET_HEADER=llama.h
+
+$(TARGET_EXEC): main
+	cp $< $@
+
+install: $(TARGET_EXEC) $(TARGET_LIB) $(TARGET_HEADERS)
+	$(INSTALL) -d $(PREFIX)/bin
+	$(INSTALL) -d $(PREFIX)/lib
+	$(INSTALL) -m 755 $(TARGET_EXEC) $(PREFIX)/bin
+	$(INSTALL) -m 644 $(TARGET_LIB) $(PREFIX)/lib
+	$(INSTALL) -m 644 $(TARGET_HEADER) $(PREFIX)/include
+
+uninstall:
+	rm -f $(PREFIX)/bin/$(TARGET_EXEC)
+	rm -f $(PREFIX)/lib/$(TARGET_LIB)
+	rm -f $(PREFIX)/include/$(TARGET_HEADER)
